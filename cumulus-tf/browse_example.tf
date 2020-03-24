@@ -1,5 +1,5 @@
 module "discover_granules_browse_example_workflow" {
-  source = "../../tf-modules/workflow"
+  source = "https://github.com/nasa/cumulus/releases/download/v1.19.0/terraform-aws-cumulus-workflow.zip"
 
   prefix          = var.prefix
   name            = "DiscoverGranulesBrowseExample"
@@ -99,7 +99,7 @@ JSON
 }
 
 module "cookbook_browse_example_workflow" {
-  source = "../../tf-modules/workflow"
+  source = "https://github.com/nasa/cumulus/releases/download/v1.19.0/terraform-aws-cumulus-workflow.zip"
 
   prefix          = var.prefix
   name            = "CookbookBrowseExample"
