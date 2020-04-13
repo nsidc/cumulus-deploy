@@ -15,18 +15,18 @@ resource "aws_lambda_function" "brw_atl03" {
   }
 }
 
-module "discover_granules_ingest_atl03_granule_workflow" {
+module "discover_granules_workflow" {
   source = "https://github.com/nasa/cumulus/releases/download/v1.19.0/terraform-aws-cumulus-workflow.zip"
 
   prefix          = var.prefix
-  name            = "DiscoverGranulesBrowseExampleATL03"
+  name            = "DiscoverGranules"
   workflow_config = module.cumulus.workflow_config
   system_bucket   = var.system_bucket
   tags            = local.tags
 
   state_machine_definition = <<JSON
 {
-  "Comment": "Example for Browse Generation Data Cookbook",
+  "Comment": "Taken from for Browse Generation Data Cookbook",
   "StartAt": "DiscoverGranules",
   "TimeoutSeconds": 18000,
   "States": {
@@ -75,7 +75,7 @@ module "discover_granules_ingest_atl03_granule_workflow" {
             "provider": "{$.meta.provider}",
             "internalBucket": "{$.meta.buckets.internal.name}",
             "stackName": "{$.meta.stack}",
-            "granuleIngestWorkflow": "CookbookBrowseExampleATL03",
+            "granuleIngestWorkflow": "IngestATL03GranuleWithBrowse",
             "queueUrl": "{$.meta.queues.startSF}"
           }
         }
@@ -114,11 +114,11 @@ module "discover_granules_ingest_atl03_granule_workflow" {
 JSON
 }
 
-module "cookbook_browse_ingest_atl03_granule_workflow" {
+module "ingest_atl03_granule_with_browse_workflow" {
   source = "https://github.com/nasa/cumulus/releases/download/v1.19.0/terraform-aws-cumulus-workflow.zip"
 
   prefix          = var.prefix
-  name            = "CookbookBrowseExampleATL03"
+  name            = "IngestATL03GranuleWithBrowse"
   workflow_config = module.cumulus.workflow_config
   system_bucket   = var.system_bucket
   tags            = local.tags
