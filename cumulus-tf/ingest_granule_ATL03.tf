@@ -1,7 +1,7 @@
 resource "aws_lambda_function" "brw_atl03" {
   function_name    = "${var.prefix}-browse-imagery-atl03"
-  filename         = "${path.module}/../lambdas/browse-imagery-atl03/lambda.zip"
-  source_code_hash = filebase64sha256("${path.module}/../lambdas/browse-imagery-atl03/lambda.zip")
+  filename         = "${path.module}/../lambdas/lambda-browse-imagery-from-hdf5/lambda.zip"
+  source_code_hash = filebase64sha256("${path.module}/../lambdas/lambda-browse-imagery-from-hdf5/lambda.zip")
   handler          = "ingest_granule_ATL03.lambda_handler"
   role             = module.cumulus.lambda_processing_role_arn
   runtime          = "python3.6"
