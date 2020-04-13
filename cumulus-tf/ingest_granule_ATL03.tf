@@ -1,4 +1,4 @@
-resource "aws_lambda_function" "brw_atl03" {
+resource "aws_lambda_function" "atl03_extract_browse" {
   function_name    = "${var.prefix}-browse-imagery-atl03"
   filename         = "${path.module}/../lambdas/lambda-browse-imagery-from-hdf5/lambda.zip"
   source_code_hash = filebase64sha256("${path.module}/../lambdas/lambda-browse-imagery-from-hdf5/lambda.zip")
@@ -208,7 +208,7 @@ module "ingest_atl03_granule_with_browse_workflow" {
         }
       },
       "Type": "Task",
-      "Resource": "${aws_lambda_function.brw_atl03.arn}",
+      "Resource": "${aws_lambda_function.atl03_extract_browse.arn}",
       "Catch": [
         {
           "ErrorEquals": [
