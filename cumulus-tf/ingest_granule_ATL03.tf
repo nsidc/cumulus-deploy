@@ -1,8 +1,25 @@
-module "discover_granules_browse_example_workflow" {
+resource "aws_lambda_function" "brw_atl03" {
+  function_name    = "${var.prefix}-browse-imagery-atl03"
+  filename         = "${path.module}/../lambdas/browse-imagery-atl03/lambda.zip"
+  source_code_hash = filebase64sha256("${path.module}/../lambdas/browse-imagery-atl03/lambda.zip")
+  handler          = "ingest_granule_ATL03.lambda_handler"
+  role             = module.cumulus.lambda_processing_role_arn
+  runtime          = "python3.6"
+  timeout          = 60
+
+  layers = [var.cumulus_message_adapter_lambda_layer_arn]
+
+  vpc_config {
+    subnet_ids         = var.subnet_ids
+    security_group_ids = [aws_security_group.no_ingress_all_egress.id]
+  }
+}
+
+module "discover_granules_ingest_atl03_granule_workflow" {
   source = "https://github.com/nasa/cumulus/releases/download/v1.19.0/terraform-aws-cumulus-workflow.zip"
 
   prefix          = var.prefix
-  name            = "DiscoverGranulesBrowseExample"
+  name            = "DiscoverGranulesBrowseExampleATL03"
   workflow_config = module.cumulus.workflow_config
   system_bucket   = var.system_bucket
   tags            = local.tags
@@ -58,8 +75,7 @@ module "discover_granules_browse_example_workflow" {
             "provider": "{$.meta.provider}",
             "internalBucket": "{$.meta.buckets.internal.name}",
             "stackName": "{$.meta.stack}",
-            "granuleIngestMessageTemplateUri": "{$.meta.template}",
-            "granuleIngestWorkflow": "CookbookBrowseExample",
+            "granuleIngestWorkflow": "CookbookBrowseExampleATL03",
             "queueUrl": "{$.meta.queues.startSF}"
           }
         }
@@ -98,11 +114,11 @@ module "discover_granules_browse_example_workflow" {
 JSON
 }
 
-module "cookbook_browse_example_workflow" {
+module "cookbook_browse_ingest_atl03_granule_workflow" {
   source = "https://github.com/nasa/cumulus/releases/download/v1.19.0/terraform-aws-cumulus-workflow.zip"
 
   prefix          = var.prefix
-  name            = "CookbookBrowseExample"
+  name            = "CookbookBrowseExampleATL03"
   workflow_config = module.cumulus.workflow_config
   system_bucket   = var.system_bucket
   tags            = local.tags
@@ -175,6 +191,7 @@ module "cookbook_browse_example_workflow" {
             "cmrMetadataFormat": "{$.meta.cmrMetadataFormat}",
             "additionalUrls": "{$.meta.additionalUrls}",
             "generateFakeBrowse": true,
+            "provider": "{$.meta.provider}",
             "cumulus_message": {
               "outputs": [
                 {
@@ -191,7 +208,7 @@ module "cookbook_browse_example_workflow" {
         }
       },
       "Type": "Task",
-      "Resource": "${module.cumulus.fake_processing_task.task_arn}",
+      "Resource": "${aws_lambda_function.brw_atl03.arn}",
       "Catch": [
         {
           "ErrorEquals": [
@@ -207,7 +224,7 @@ module "cookbook_browse_example_workflow" {
             "States.ALL"
           ],
           "IntervalSeconds": 2,
-          "MaxAttempts": 3
+          "MaxAttempts": 1
         }
       ],
       "Next": "FilesToGranulesStep"
@@ -285,7 +302,6 @@ module "cookbook_browse_example_workflow" {
       ],
       "End": true
     },
-
     "WorkflowFailed": {
       "Type": "Fail",
       "Cause": "Workflow failed"
